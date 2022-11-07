@@ -1,1 +1,3 @@
-# pygame_test
+# Pong Game
+
+Pong game fr
