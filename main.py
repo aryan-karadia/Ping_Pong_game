@@ -1,6 +1,7 @@
 import pygame
 import os
 import sys
+import random
 
 screen_width = 900
 screen_height = 500
@@ -20,8 +21,8 @@ LIGHT_GREY = (200, 200, 200)
 FPS = 60
 
 VEL = 5
-ball_vel_x = 5
-ball_vel_y = 5
+ball_vel_x = 7 * random.choice((1,-1))
+ball_vel_y = 7 * random.choice((1,-1))
 
 #images
 player1_img = pygame.image.load(os.path.join('assets', 'player.png'))
@@ -61,10 +62,16 @@ def ball_movement(ball, p1, p2):
         ball_vel_y *= -1
 
     if ball.left <= 0 or ball.right >= screen_width:
-        ball_vel_x *= -1
+        ball_update(ball)
 
     if ball.colliderect(p1) or ball.colliderect(p2):
         ball_vel_x *= -1
+
+def ball_update(ball):
+    global ball_vel_x, ball_vel_y
+    ball.center = (screen_width/2, screen_height/2)
+    ball_vel_x *= random.choice((1,-1))
+    ball_vel_y *= random.choice((1,-1))
 
 def main():
     p1 = pygame.Rect(0, screen_height/2, 25, 100)
