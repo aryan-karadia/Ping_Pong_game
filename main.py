@@ -5,8 +5,10 @@ pygame.init()
 screen = pygame.display.set_mode((900, 500))
 pygame.display.set_caption("My First Game")
 
-WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+
+BORDER = pygame.Rect(447.5, 0, 5, 500)
 
 FPS = 60
 
@@ -22,11 +24,24 @@ ball_img = pygame.transform.scale(ball_img, (20, 20))
 
 def draw_window(p1, p2):
 
-    screen.fill(BLACK)
+    screen.blit(background_img, (0, 0))
+    pygame.draw.rect(screen, WHITE, BORDER)
     screen.blit(player1_img, (p1.x, p1.y))
     screen.blit(player2_img, (p2.x, p2.y))
     screen.blit(ball_img, (450, 250))
     pygame.display.update()
+
+def p1_movement(keys_pressed, p1):
+    if keys_pressed[pygame.K_w] and p1.y - VEL > 0: # Player 1 going up
+        p1.y -= VEL
+    if keys_pressed[pygame.K_s] and p1.y + VEL + p1.height < 500: # Player 1 going down
+        p1.y += VEL
+
+def p2_movement(keys_pressed, p2):
+    if keys_pressed[pygame.K_UP] and p2.y - VEL > 0: # Player 2 going up
+        p2.y -= VEL
+    if keys_pressed[pygame.K_DOWN] and p2.y + VEL + p2.height < 500: # Player 2 going down
+        p2.y += VEL
 
 def main():
     p1 = pygame.Rect(0, 250, 25, 50)
@@ -46,15 +61,8 @@ def main():
         
         keys_pressed = pygame.key.get_pressed()
 
-        if keys_pressed[pygame.K_w]: # Player 1 going up
-            p1.y -= VEL
-        if keys_pressed[pygame.K_s]: # Player 1 going down
-            p1.y += VEL
-        
-        if keys_pressed[pygame.K_UP]: # Player 2 going up
-            p2.y -= VEL
-        if keys_pressed[pygame.K_DOWN]: # Player 2 going down
-            p2.y += VEL
+        p1_movement(keys_pressed, p1)
+        p2_movement(keys_pressed, p2)
 
         draw_window(p1, p2)
 
