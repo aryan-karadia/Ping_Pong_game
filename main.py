@@ -28,6 +28,9 @@ font_name = pygame.font.Font('freesansbold.ttf', 20)
 p1_score = 0
 p2_score = 0
 
+#timer
+score_time = True
+
 #images
 player1_img = pygame.image.load(os.path.join('assets', 'player.png'))
 player1_img = pygame.transform.scale(player1_img, (25, 100))
@@ -42,14 +45,14 @@ def draw_window(p1, p2, ball):
     screen.fill(bg_colour)
     screen.blit(player1_img, (p1.x, p1.y))
     screen.blit(player2_img, (p2.x, p2.y))
-    pygame.draw.ellipse(screen, WHITE, ball)
     pygame.draw.aaline(screen, LIGHT_GREY,(screen_width/2, 0), (screen_width/2, screen_height))
+    pygame.draw.ellipse(screen, WHITE, ball)
 
     #Draw scores
     p1_text = font_name.render(f"{p1_score}", False, LIGHT_GREY)
-    screen.blit(p1_text, (screen_width/2 - 13.5, screen_height/2))
+    screen.blit(p1_text, (screen_width/2 - 25, screen_height/2))
     p2_text = font_name.render(f"{p2_score}", False, LIGHT_GREY)
-    screen.blit(p2_text, (screen_width/2 + 5, screen_height/2))
+    screen.blit(p2_text, (screen_width/2 + 16, screen_height/2))
 
     pygame.display.update()
 
@@ -66,7 +69,7 @@ def p2_movement(keys_pressed, p2):
         p2.y += VEL
 
 def ball_movement(ball, p1, p2):
-    global ball_vel_x, ball_vel_y
+    global ball_vel_x, ball_vel_y, score_time
     ball.x += ball_vel_x
     ball.y += ball_vel_y
 
@@ -74,20 +77,41 @@ def ball_movement(ball, p1, p2):
         ball_vel_y *= -1
 
     if ball.left <= 0 or ball.right >= screen_width:
-        ball_update(ball)
+        score_time = pygame.time.get_ticks()
 
     if ball.colliderect(p1) or ball.colliderect(p2):
-        ball_vel_x *= -1
+        ball_vel_x *= -1.1
 
 def ball_update(ball):
-    global ball_vel_x, ball_vel_y, p1_score, p2_score
+    global ball_vel_x, ball_vel_y, p1_score, p2_score, score_time
+
+    #scoring updates
     if ball.left <= 0:
         p2_score += 1
     if ball.right >= screen_width:
         p1_score += 1
+
+    current_time = pygame.time.get_ticks()
     ball.center = (screen_width/2, screen_height/2)
-    ball_vel_x *= random.choice((1,-1))
-    ball_vel_y *= random.choice((1,-1))
+
+    #3, 2, 1 countdown
+    if current_time - score_time < 700:
+        number_three = font_name.render("3", False, WHITE)
+        screen.blit(number_three, (screen_width/2 - 10, screen_height/2 + 20))
+    if 700 < current_time - score_time < 1400:
+        number_two = font_name.render("2", False, WHITE)
+        screen.blit(number_two, (screen_width/2 - 10, screen_height/2 + 20))
+    if 1400 < current_time - score_time < 2100:
+        number_one = font_name.render("1", False, WHITE)
+        screen.blit(number_one, (screen_width/2 - 10, screen_height/2 + 20))
+
+    #keeps ball centered while counting down
+    if current_time - score_time < 2100:
+        ball_vel_x, ball_vel_y = 0, 0
+    else:
+        ball_vel_x = 7 * random.choice((1,-1))
+        ball_vel_y = 7 * random.choice((1,-1))
+        score_time = None
 
 
 def main():
@@ -118,6 +142,9 @@ def main():
 
         #draw window
         draw_window(p1, p2, ball)
+
+        if score_time:
+            ball_update(ball)
 
     pygame.quit()
     sys.exit()
