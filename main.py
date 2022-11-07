@@ -19,10 +19,14 @@ LIGHT_GREY = (200, 200, 200)
 
 #global variables
 FPS = 60
-
 VEL = 5
 ball_vel_x = 7 * random.choice((1,-1))
 ball_vel_y = 7 * random.choice((1,-1))
+
+#text variables
+font_name = pygame.font.Font('freesansbold.ttf', 20)
+p1_score = 0
+p2_score = 0
 
 #images
 player1_img = pygame.image.load(os.path.join('assets', 'player.png'))
@@ -34,11 +38,19 @@ ball_img = pygame.transform.scale(ball_img, (20, 20))
 
 def draw_window(p1, p2, ball):
 
+    #draw background and models
     screen.fill(bg_colour)
     screen.blit(player1_img, (p1.x, p1.y))
     screen.blit(player2_img, (p2.x, p2.y))
     pygame.draw.ellipse(screen, WHITE, ball)
     pygame.draw.aaline(screen, LIGHT_GREY,(screen_width/2, 0), (screen_width/2, screen_height))
+
+    #Draw scores
+    p1_text = font_name.render(f"{p1_score}", False, LIGHT_GREY)
+    screen.blit(p1_text, (screen_width/2 - 13.5, screen_height/2))
+    p2_text = font_name.render(f"{p2_score}", False, LIGHT_GREY)
+    screen.blit(p2_text, (screen_width/2 + 5, screen_height/2))
+
     pygame.display.update()
 
 def p1_movement(keys_pressed, p1):
@@ -68,10 +80,15 @@ def ball_movement(ball, p1, p2):
         ball_vel_x *= -1
 
 def ball_update(ball):
-    global ball_vel_x, ball_vel_y
+    global ball_vel_x, ball_vel_y, p1_score, p2_score
+    if ball.left <= 0:
+        p2_score += 1
+    if ball.right >= screen_width:
+        p1_score += 1
     ball.center = (screen_width/2, screen_height/2)
     ball_vel_x *= random.choice((1,-1))
     ball_vel_y *= random.choice((1,-1))
+
 
 def main():
     p1 = pygame.Rect(0, screen_height/2, 25, 100)
