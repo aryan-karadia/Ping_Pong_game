@@ -5,25 +5,29 @@ import sys
 screen_width = 900
 screen_height = 500
 
+#initialise pygame
 pygame.init()
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("My First Game")
 
+#colours
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 bg_colour = pygame.Color('grey12')
 LIGHT_GREY = (200, 200, 200)
 
-
-
+#global variables
 FPS = 60
 
 VEL = 5
+ball_vel_x = 5
+ball_vel_y = 5
 
+#images
 player1_img = pygame.image.load(os.path.join('assets', 'player.png'))
-player1_img = pygame.transform.scale(player1_img, (25, 50))
+player1_img = pygame.transform.scale(player1_img, (25, 100))
 player2_img = pygame.image.load(os.path.join('assets', 'player.png'))
-player2_img = pygame.transform.scale(player2_img, (25, 50))
+player2_img = pygame.transform.scale(player2_img, (25, 100))
 ball_img = pygame.image.load(os.path.join('assets', 'ball.png'))
 ball_img = pygame.transform.scale(ball_img, (20, 20))
 
@@ -45,20 +49,29 @@ def p1_movement(keys_pressed, p1):
 def p2_movement(keys_pressed, p2):
     if keys_pressed[pygame.K_UP] and p2.y - VEL > 0: # Player 2 going up
         p2.y -= VEL
-    if keys_pressed[pygame.K_DOWN] and p2.y + VEL + p2.height < screen_height: # Player 2 going down
+    if keys_pressed[pygame.K_DOWN] and p2.bottom + VEL < screen_height: # Player 2 going down
         p2.y += VEL
 
+def ball_movement(ball, p1, p2):
+    global ball_vel_x, ball_vel_y
+    ball.x += ball_vel_x
+    ball.y += ball_vel_y
 
+    if ball.top <= 0 or ball.bottom >= screen_height:
+        ball_vel_y *= -1
+
+    if ball.left <= 0 or ball.right >= screen_width:
+        ball_vel_x *= -1
+
+    if ball.colliderect(p1) or ball.colliderect(p2):
+        ball_vel_x *= -1
 
 def main():
-    p1 = pygame.Rect(0, screen_height/2, 25, 200)
-    p2 = pygame.Rect(870, screen_height/2, 25, 200)
+    p1 = pygame.Rect(0, screen_height/2, 25, 100)
+    p2 = pygame.Rect(870, screen_height/2, 25, 100)
     ball = pygame.Rect(440, 240, 20, 20)
 
     clock = pygame.time.Clock()
-
-    ball_vel_x = 5
-    ball_vel_y = 5
 
     run = True
 
@@ -69,24 +82,17 @@ def main():
             if event.type == pygame.QUIT:
 
                 run = False
+        
+        #ball movement
+        ball_movement(ball, p1, p2)
 
+        #player movement
         keys_pressed = pygame.key.get_pressed()
 
         p1_movement(keys_pressed, p1)
         p2_movement(keys_pressed, p2)
 
-        ball.x += ball_vel_x
-        ball.y += ball_vel_y
-
-        if ball.top <= 0 or ball.bottom >= screen_height:
-            ball_vel_y *= -1
-
-        if ball.left <= 0 or ball.right >= screen_width:
-            ball_vel_x *= -1
-
-        if ball.colliderect(p1) or ball.colliderect(p2):
-            ball_vel_x *= -1
-
+        #draw window
         draw_window(p1, p2, ball)
 
     pygame.quit()
